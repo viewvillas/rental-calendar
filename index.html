@@ -4,8 +4,13 @@
   <meta charset="utf-8" />
   <title>Airbnb Calendar Display</title>
 
-  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+  <!-- FullCalendar v3 + dependencies -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js"></script>
+
+  <!-- iCal parser -->
   <script src="https://cdn.jsdelivr.net/npm/ical.js@1.4.0/build/ical.min.js"></script>
 
   <style>
@@ -29,8 +34,8 @@
   <script>
     const ICAL_URL = "airbnb.ics";
 
-    // Color + label map for your 6 listings
-    const listingColors = {
+    // Listing colors + labels
+    var listingColors = {
       "1355078859895588226": { color: "#ff6b6b", label: "Casa 1" },
       "1194501603461940563": { color: "#4ecdc4", label: "Casa 2" },
       "1166699194313702494": { color: "#1a535c", label: "Casa 3" },
@@ -46,7 +51,7 @@
       const comp = new ICAL.Component(jcalData);
       const events = comp.getAllSubcomponents("vevent");
 
-      // Convert VEVENT → FullCalendar event objects
+      // Convert VEVENT → FullCalendar v3 events
       const calendarEvents = events.map(e => {
         const vevent = new ICAL.Event(e);
 
@@ -64,34 +69,25 @@
         };
       });
 
-      const calendarEl = document.getElementById("calendar");
-
-      const calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: "dayGridMonth",
+      // Initialize FullCalendar v3
+      $('#calendar').fullCalendar({
+        height: "parent",
+        defaultView: "month",
         events: calendarEvents,
-        height: "100%",
 
-        // FullCalendar v6 event styling hook
-        eventDidMount: function(info) {
-          let listingId = info.event.id;
-
-          if (listingId && listingColors[listingId]) {
-            let data = listingColors[listingId];
+        eventRender: function(event, element) {
+          if (event.id && listingColors[event.id]) {
+            var info = listingColors[event.id];
 
             // Apply color
-            info.el.style.backgroundColor = data.color;
-            info.el.style.borderColor = data.color;
+            element.css('background-color', info.color);
+            element.css('border-color', info.color);
 
             // Add label prefix
-            let titleEl = info.el.querySelector('.fc-event-title');
-            if (titleEl) {
-              titleEl.textContent = data.label + ": " + titleEl.textContent;
-            }
+            element.find('.fc-title').prepend(info.label + ": ");
           }
         }
       });
-
-      calendar.render();
     }
 
     loadCalendar();
