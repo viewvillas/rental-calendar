@@ -1,0 +1,24 @@
+name: Update Airbnb iCal
+
+on:
+  schedule:
+    - cron: "0 * * * *"   # every hour
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Download Airbnb iCal
+        run: curl -L "https://www.airbnb.com/calendar/ical/1194501603461940563.ics?t=b12407e10b7e445f96394d50ac2a2b0d" -o airbnb.ics
+
+      - name: Commit updated file
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add airbnb.ics
+          git commit -m "Update iCal" || echo "No changes"
+          git push
