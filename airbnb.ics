@@ -1,1 +1,5 @@
-placeholder
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//AvailabilityBot Generator//mxm.dk//
+METHOD:PUBLISH
+END:VCALENDAR
