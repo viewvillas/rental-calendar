@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Download Airbnb iCal
-        run: curl -L "https://ical.tab.travel/npxkw-acc-2.ics?t=ff94b4" -o airbnb.ics
+        run: curl -L "https://www.airbnb.com/calendar/ical/1194501603461940563.ics?t=b12407e10b7e445f96394d50ac2a2b0d" -o airbnb.ics
 
       - name: Commit updated file
         run: |
