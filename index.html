@@ -23,7 +23,29 @@
     }
     #calendar {
       max-width: 100%;
-      height: 100%;
+      height: calc(100% - 70px);
+    }
+
+    /* Legend styling */
+    #legend {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 10px;
+      background: #fff;
+      font-size: 18px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin-right: 20px;
+      margin-bottom: 5px;
+    }
+    .legend-color {
+      width: 18px;
+      height: 18px;
+      display: inline-block;
+      margin-right: 6px;
+      border: 1px solid #333;
     }
 
     /* Check‑in arrow (left border) */
@@ -39,6 +61,17 @@
 </head>
 
 <body>
+
+  <!-- LEGEND -->
+  <div id="legend">
+    <div class="legend-item"><span class="legend-color" style="background:#ff6b6b"></span> Casa 1</div>
+    <div class="legend-item"><span class="legend-color" style="background:#4ecdc4"></span> Casa 2</div>
+    <div class="legend-item"><span class="legend-color" style="background:#1a535c"></span> Casa 3</div>
+    <div class="legend-item"><span class="legend-color" style="background:#ffa600"></span> Casa 4</div>
+    <div class="legend-item"><span class="legend-color" style="background:#6a4c93"></span> Casa 5</div>
+    <div class="legend-item"><span class="legend-color" style="background:#2b9348"></span> Casa 6</div>
+  </div>
+
   <div id="calendar"></div>
 
   <script>
@@ -95,13 +128,9 @@
           }
 
           /* CHECK‑IN / CHECK‑OUT ARROWS */
-
-          // FullCalendar v3 marks the first segment with "fc-start"
           if (element.hasClass("fc-start")) {
             element.addClass("checkin");
           }
-
-          // FullCalendar v3 marks the last segment with "fc-end"
           if (element.hasClass("fc-end")) {
             element.addClass("checkout");
           }
