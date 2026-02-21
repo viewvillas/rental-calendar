@@ -2,7 +2,7 @@ name: Update Airbnb iCal (All Listings)
 
 on:
   schedule:
-    - cron: "0 * * * *"   # every hour
+    - cron: "0 * * * *"
   workflow_dispatch:
 
 jobs:
@@ -12,39 +12,30 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Download all Airbnb iCal feeds
+      - name: Merge all Airbnb calendars into one VCALENDAR
         run: |
-          # Start with a clean file
-          echo "" > airbnb.ics
+          echo "BEGIN:VCALENDAR" > airbnb.ics
+          echo "VERSION:2.0" >> airbnb.ics
+          echo "PRODID:-//Merged Airbnb Calendars//EN" >> airbnb.ics
 
-          # Listing 1
-          curl -L "https://www.airbnb.com/calendar/ical/1355078859895588226.ics?t=ef71f5d189624274a64c20bb197e4be3" >> airbnb.ics
-          echo "" >> airbnb.ics
+          for url in \
+            "https://www.airbnb.com/calendar/ical/1355078859895588226.ics?t=ef71f5d189624274a64c20bb197e4be3" \
+            "https://www.airbnb.com/calendar/ical/1194501603461940563.ics?t=b12407e10b7e445f96394d50ac2a2b0d" \
+            "https://www.airbnb.com/calendar/ical/1166699194313702494.ics?t=725dc7c40d84486a89e266648d50c1b3" \
+            "https://www.airbnb.com/calendar/ical/1169542988343878536.ics?t=9de45ac35a1e4ac3849bb5238af21d5f" \
+            "https://www.airbnb.com/calendar/ical/1193566712390606838.ics?t=8972eb21cdbd4c4b96627cd9d30addaa" \
+            "https://www.airbnb.com/calendar/ical/1169549533139105227.ics?t=0d298960a8d04a8da17b8ef07fa1486e"
+          do
+            curl -s "$url" | \
+              sed -e '/BEGIN:VCALENDAR/d' -e '/END:VCALENDAR/d' >> airbnb.ics
+          done
 
-          # Listing 2
-          curl -L "https://www.airbnb.com/calendar/ical/1194501603461940563.ics?t=b12407e10b7e445f96394d50ac2a2b0d" >> airbnb.ics
-          echo "" >> airbnb.ics
-
-          # Listing 3
-          curl -L "https://www.airbnb.com/calendar/ical/1166699194313702494.ics?t=725dc7c40d84486a89e266648d50c1b3" >> airbnb.ics
-          echo "" >> airbnb.ics
-
-          # Listing 4
-          curl -L "https://www.airbnb.com/calendar/ical/1169542988343878536.ics?t=9de45ac35a1e4ac3849bb5238af21d5f" >> airbnb.ics
-          echo "" >> airbnb.ics
-
-          # Listing 5
-          curl -L "https://www.airbnb.com/calendar/ical/1193566712390606838.ics?t=8972eb21cdbd4c4b96627cd9d30addaa" >> airbnb.ics
-          echo "" >> airbnb.ics
-
-          # Listing 6
-          curl -L "https://www.airbnb.com/calendar/ical/1169549533139105227.ics?t=0d298960a8d04a8da17b8ef07fa1486e" >> airbnb.ics
-          echo "" >> airbnb.ics
+          echo "END:VCALENDAR" >> airbnb.ics
 
       - name: Commit updated file
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add airbnb.ics
-          git commit -m "Update merged iCal" || echo "No changes"
+          git commit -m "Merged 6 Airbnb calendars" || echo "No changes"
           git push
