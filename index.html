@@ -25,9 +25,13 @@
       max-width: 100%;
       height: 100%;
     }
+
+    /* Check‑in arrow (left border) */
     .checkin {
       border-left: 6px solid black !important;
     }
+
+    /* Check‑out arrow (right border) */
     .checkout {
       border-right: 6px solid black !important;
     }
@@ -60,7 +64,7 @@
       const calendarEvents = events.map(e => {
         const vevent = new ICAL.Event(e);
 
-        // Extract listing ID from SUMMARY (Airbnb always includes it)
+        // Extract listing ID from SUMMARY (injected by GitHub Action)
         let summary = vevent.summary || "";
         let match = summary.match(/(\d{16,})/);
         let listingId = match ? match[1] : null;
@@ -80,32 +84,27 @@
         events: calendarEvents,
 
         eventRender: function(event, element) {
-            // Color + label
-            if (event.id && listingColors[event.id]) {
-                var info = listingColors[event.id];
-        
-                element.css('background-color', info.color);
-                element.css('border-color', info.color);
-        
-                element.find('.fc-title').prepend(info.label + ": ");
-            }
-        
-            // Check-in arrow (first day)
-            var start = moment(event.start).format("YYYY-MM-DD");
-            var end = moment(event.end).format("YYYY-MM-DD");
-        
-            // FullCalendar treats end date as exclusive, so subtract 1 day
-            var checkoutDay = moment(event.end).subtract(1, "days").format("YYYY-MM-DD");
-        
-            // Add check-in arrow
-            if (element.hasClass("fc-start")) {
-                element.addClass("checkin");
-            }
-        
-            // Add check-out arrow
-            if (element.hasClass("fc-end")) {
-                element.addClass("checkout");
-            }
+          /* COLOR + LABEL */
+          if (event.id && listingColors[event.id]) {
+            var info = listingColors[event.id];
+
+            element.css('background-color', info.color);
+            element.css('border-color', info.color);
+
+            element.find('.fc-title').prepend(info.label + ": ");
+          }
+
+          /* CHECK‑IN / CHECK‑OUT ARROWS */
+
+          // FullCalendar v3 marks the first segment with "fc-start"
+          if (element.hasClass("fc-start")) {
+            element.addClass("checkin");
+          }
+
+          // FullCalendar v3 marks the last segment with "fc-end"
+          if (element.hasClass("fc-end")) {
+            element.addClass("checkout");
+          }
         }
       });
     }
@@ -119,4 +118,3 @@
   </script>
 </body>
 </html>
-
