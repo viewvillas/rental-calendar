@@ -25,6 +25,12 @@
       max-width: 100%;
       height: 100%;
     }
+    .checkin {
+      border-left: 6px solid black !important;
+    }
+    .checkout {
+      border-right: 6px solid black !important;
+    }
   </style>
 </head>
 
@@ -74,14 +80,32 @@
         events: calendarEvents,
 
         eventRender: function(event, element) {
-          if (event.id && listingColors[event.id]) {
-            var info = listingColors[event.id];
-
-            element.css('background-color', info.color);
-            element.css('border-color', info.color);
-
-            element.find('.fc-title').prepend(info.label + ": ");
-          }
+            // Color + label
+            if (event.id && listingColors[event.id]) {
+                var info = listingColors[event.id];
+        
+                element.css('background-color', info.color);
+                element.css('border-color', info.color);
+        
+                element.find('.fc-title').prepend(info.label + ": ");
+            }
+        
+            // Check-in arrow (first day)
+            var start = moment(event.start).format("YYYY-MM-DD");
+            var end = moment(event.end).format("YYYY-MM-DD");
+        
+            // FullCalendar treats end date as exclusive, so subtract 1 day
+            var checkoutDay = moment(event.end).subtract(1, "days").format("YYYY-MM-DD");
+        
+            // Add check-in arrow
+            if (element.hasClass("fc-start")) {
+                element.addClass("checkin");
+            }
+        
+            // Add check-out arrow
+            if (element.hasClass("fc-end")) {
+                element.addClass("checkout");
+            }
         }
       });
     }
@@ -95,3 +119,4 @@
   </script>
 </body>
 </html>
+
