@@ -26,8 +26,14 @@ jobs:
             "https://www.airbnb.com/calendar/ical/1193566712390606838.ics?t=8972eb21cdbd4c4b96627cd9d30addaa" \
             "https://www.airbnb.com/calendar/ical/1169549533139105227.ics?t=0d298960a8d04a8da17b8ef07fa1486e"
           do
+            LISTING_ID=$(echo "$url" | sed -n 's/.*ical\/\([0-9]*\)\.ics.*/\1/p')
+          
             curl -s "$url" | \
-              sed -e '/BEGIN:VCALENDAR/d' -e '/END:VCALENDAR/d' >> airbnb.ics
+              sed -e '/BEGIN:VCALENDAR/d' \
+                  -e '/END:VCALENDAR/d' \
+                  -e "s/^SUMMARY:/SUMMARY:${LISTING_ID} /" \
+                  -e "s/^UID:/UID:${LISTING_ID}-/" \
+              >> airbnb.ics
           done
 
           echo "END:VCALENDAR" >> airbnb.ics
