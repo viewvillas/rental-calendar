@@ -51,13 +51,12 @@
       const comp = new ICAL.Component(jcalData);
       const events = comp.getAllSubcomponents("vevent");
 
-      // Convert VEVENT → FullCalendar v3 events
       const calendarEvents = events.map(e => {
         const vevent = new ICAL.Event(e);
 
-        // Extract listing ID from UID
-        let uid = vevent.uid || "";
-        let match = uid.match(/(\d{16,})/);
+        // Extract listing ID from SUMMARY (Airbnb always includes it)
+        let summary = vevent.summary || "";
+        let match = summary.match(/(\d{16,})/);
         let listingId = match ? match[1] : null;
 
         return {
@@ -69,7 +68,6 @@
         };
       });
 
-      // Initialize FullCalendar v3
       $('#calendar').fullCalendar({
         height: "parent",
         defaultView: "month",
@@ -79,11 +77,9 @@
           if (event.id && listingColors[event.id]) {
             var info = listingColors[event.id];
 
-            // Apply color
             element.css('background-color', info.color);
             element.css('border-color', info.color);
 
-            // Add label prefix
             element.find('.fc-title').prepend(info.label + ": ");
           }
         }
