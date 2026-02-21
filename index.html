@@ -29,6 +29,16 @@
   <script>
     const ICAL_URL = "airbnb.ics";
 
+    // Color + label map for your 6 listings
+    const listingColors = {
+      "1355078859895588226": { color: "#ff6b6b", label: "Casa 1" },
+      "1194501603461940563": { color: "#4ecdc4", label: "Casa 2" },
+      "1166699194313702494": { color: "#1a535c", label: "Casa 3" },
+      "1169542988343878536": { color: "#ffa600", label: "Casa 4" },
+      "1193566712390606838": { color: "#6a4c93", label: "Casa 5" },
+      "1169549533139105227": { color: "#2b9348", label: "Casa 6" }
+    };
+
     async function loadCalendar() {
       const response = await fetch(ICAL_URL);
       const text = await response.text();
@@ -36,46 +46,48 @@
       const comp = new ICAL.Component(jcalData);
       const events = comp.getAllSubcomponents("vevent");
 
+      // Convert VEVENT → FullCalendar event objects
       const calendarEvents = events.map(e => {
         const vevent = new ICAL.Event(e);
+
+        // Extract listing ID from UID
+        let uid = vevent.uid || "";
+        let match = uid.match(/(\d{16,})/);
+        let listingId = match ? match[1] : null;
+
         return {
+          id: listingId,
           title: "Booked",
           start: vevent.startDate.toJSDate(),
           end: vevent.endDate.toJSDate(),
-          allDay: true,
-          color: "#ff5a5f"
+          allDay: true
         };
       });
 
       const calendarEl = document.getElementById("calendar");
-      var listingColors = {
-          "1355078859895588226": { color: "#ff6b6b", label: "Casa 1" },
-          "1194501603461940563": { color: "#4ecdc4", label: "Casa 2" },
-          "1166699194313702494": { color: "#1a535c", label: "Casa 3" },
-          "1169542988343878536": { color: "#ffa600", label: "Casa 4" },
-          "1193566712390606838": { color: "#6a4c93", label: "Casa 5" },
-          "1169549533139105227": { color: "#2b9348", label: "Casa 6" }
-        };
+
       const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: "dayGridMonth",
         events: calendarEvents,
         height: "100%",
-        eventRender: function(event, element) {
-            // Extract listing ID from UID or SUMMARY
-            var match = event.id.match(/(\d{16,})/);
-            if (match) {
-                var listingId = match[1];
-                if (listingColors[listingId]) {
-                    var info = listingColors[listingId];
-        
-                    // Apply color
-                    element.css('background-color', info.color);
-                    element.css('border-color', info.color);
-        
-                    // Add label prefix
-                    element.find('.fc-title').prepend(info.label + ": ");
-                }
+
+        // FullCalendar v6 event styling hook
+        eventDidMount: function(info) {
+          let listingId = info.event.id;
+
+          if (listingId && listingColors[listingId]) {
+            let data = listingColors[listingId];
+
+            // Apply color
+            info.el.style.backgroundColor = data.color;
+            info.el.style.borderColor = data.color;
+
+            // Add label prefix
+            let titleEl = info.el.querySelector('.fc-event-title');
+            if (titleEl) {
+              titleEl.textContent = data.label + ": " + titleEl.textContent;
             }
+          }
         }
       });
 
@@ -90,6 +102,4 @@
     }, 10 * 60 * 1000);
   </script>
 </body>
-
 </html>
-
