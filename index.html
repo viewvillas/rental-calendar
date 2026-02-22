@@ -24,7 +24,7 @@
 
     #calendar {
       max-width: 100%;
-      height: calc(100% - 70px);
+      height: calc(100% - 120px);
     }
 
     /* Legend styling */
@@ -49,6 +49,25 @@
       border: 1px solid #333;
     }
 
+    /* View toggle */
+    #view-toggle {
+      display: flex;
+      gap: 10px;
+      padding: 10px;
+      background: #fff;
+    }
+    #view-toggle button {
+      padding: 10px 18px;
+      font-size: 18px;
+      border: 2px solid #333;
+      background: #f2f2f2;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    #view-toggle button:active {
+      background: #ddd;
+    }
+
     /* Check‑in arrow (left border) */
     .checkin {
       border-left: 6px solid black !important;
@@ -61,7 +80,7 @@
 
     /* TODAY highlight */
     .fc-today {
-      background: #fff3a3 !important;   /* soft yellow */
+      background: #fff3a3 !important;
       border: 3px solid #ffcc00 !important;
     }
   </style>
@@ -79,12 +98,17 @@
     <div class="legend-item"><span class="legend-color" style="background:#2b9348"></span> Casa 6</div>
   </div>
 
+  <!-- VIEW TOGGLE -->
+  <div id="view-toggle">
+    <button onclick="setCalendarView('month')">Month</button>
+    <button onclick="setCalendarView('agendaWeek')">Week</button>
+  </div>
+
   <div id="calendar"></div>
 
   <script>
     const ICAL_URL = "airbnb.ics";
 
-    // Listing colors + labels
     var listingColors = {
       "1355078859895588226": { color: "#ff6b6b", label: "Casa 1" },
       "1194501603461940563": { color: "#4ecdc4", label: "Casa 2" },
@@ -104,7 +128,6 @@
       const calendarEvents = events.map(e => {
         const vevent = new ICAL.Event(e);
 
-        // Extract listing ID from SUMMARY (injected by GitHub Action)
         let summary = vevent.summary || "";
         let match = summary.match(/(\d{16,})/);
         let listingId = match ? match[1] : null;
@@ -124,30 +147,25 @@
         events: calendarEvents,
 
         eventRender: function(event, element) {
-          /* COLOR + LABEL */
           if (event.id && listingColors[event.id]) {
             var info = listingColors[event.id];
-
             element.css('background-color', info.color);
             element.css('border-color', info.color);
-
             element.find('.fc-title').prepend(info.label + ": ");
           }
 
-          /* CHECK‑IN / CHECK‑OUT ARROWS */
-          if (element.hasClass("fc-start")) {
-            element.addClass("checkin");
-          }
-          if (element.hasClass("fc-end")) {
-            element.addClass("checkout");
-          }
+          if (element.hasClass("fc-start")) element.addClass("checkin");
+          if (element.hasClass("fc-end")) element.addClass("checkout");
         }
       });
     }
 
     loadCalendar();
 
-    // Auto-refresh every 10 minutes
+    function setCalendarView(viewName) {
+      $('#calendar').fullCalendar('changeView', viewName);
+    }
+
     setInterval(() => {
       location.reload();
     }, 10 * 60 * 1000);
